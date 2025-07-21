@@ -1,0 +1,16 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 8000,
+    host: true,
+    allowedHosts: ["nws96x-8000.csb.app", "*"]
+  },
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
+});
