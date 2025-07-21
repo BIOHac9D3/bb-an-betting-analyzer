@@ -26,6 +26,9 @@ app.add_middleware(
 
 app.include_router(auth_router)
 
+# Serve frontend static files
+app.mount("/static", StaticFiles(directory="../frontend/dist/assets"), name="static")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
 SECRET_KEY = "supersecretkey"
@@ -40,6 +43,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return username
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+
+@app.get("/{full_path:path}", response_class=HTMLResponse)
+async def serve_spa(full_path: str, request: Request):
+    index_path = Path(__file__).parent.parent / "frontend" / "dist" / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
+    return HTMLResponse(content="Index file not found", status_code=404)
 
 @app.post("/api/train-model")
 def train(data: dict, user: str = Depends(get_current_user)):
